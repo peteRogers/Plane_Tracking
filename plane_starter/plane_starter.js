@@ -6,9 +6,15 @@
 //let server = "http://172.20.10.2:8000/planes.json";
 let server = "http://192.168.1.217:8000/closest.json";  // add ?n=3 for a different number
 let planes = [];
+let zoomSlider;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+
+  // zoom slider at the bottom: min, max, start value, step
+  zoomSlider = createSlider(0.25, 5, 1, 0.05);
+  placeSlider();
+
   getPlanes();
   setInterval(getPlanes, 1000); // ask for new data every second
 }
@@ -29,9 +35,12 @@ function draw() {
   noStroke();
   circle(width / 2, height / 2, 10);
 
+  let zoom = zoomSlider.value();
+
   for (let plane of planes) {
-    let x = plane.x * width;
-    let y = plane.y * height;
+    // zoom in/out around the middle of the screen (x, y of 0.5 is home)
+    let x = width / 2 + (plane.x - 0.5) * width * zoom;
+    let y = height / 2 + (plane.y - 0.5) * height * zoom;
 
     // higher planes = bigger circles
     let size = map(plane.altitude, 0, 40000, 5, 40);
@@ -46,8 +55,15 @@ function draw() {
 
   fill(255);
   text(planes.length + " planes", 20, 30);
+  text("zoom " + zoom + "x", width / 2 + 110, height - 26);
+}
+
+function placeSlider() {
+  zoomSlider.size(200);
+  zoomSlider.position(width / 2 - 100, height - 40);
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  placeSlider();
 }
