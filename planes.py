@@ -23,6 +23,7 @@ import socket
 import sys
 import threading
 import time
+import urllib.error
 import urllib.request
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -37,6 +38,7 @@ DEFAULT_COUNT = 5
 MAX_POSITION_AGE = 60  # seconds; ignore planes whose position is older than this
 RANGE_KM = 150         # distance from home to the edge of the canvas (for x, y)
 DEMO_HOME = (51.50, -0.12)  # used in --demo when no home location is set (London)
+ROUTE_API = "https://api.adsbdb.com/v0/callsign/"  # free callsign -> route lookup
 # ----------------------
 
 DEMO = "--demo" in sys.argv
@@ -157,6 +159,35 @@ def read_planes(home_lat, home_lon):
     return planes
 
 
+# ---- Departure / arrival airports ------------------------------------------
+# ADS-B doesn't say where a plane is going, so look the callsign up online.
+# Each callsign is only looked up once and remembered here.
+routes = {}   # "BAW117" -> {"from": "LHR", "to": "JFK"}, or None if unknown
+
+
+def lookup_route(callsign):
+    try:
+        data = fetch_json(ROUTE_API + callsign)
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            routes[callsign] = None  # not in the database, don't ask again
+        return
+    except Exception:
+        return  # network problem, try again later
+    r = data["response"]["flightroute"]
+    routes[callsign] = {"from": r["origin"]["iata_code"], "to": r["destination"]["iata_code"]}
+
+
+def poll_routes():
+    while True:
+        for p in latest["planes"]:
+            if p["flight"] and p["flight"] not in routes:
+                lookup_route(p["flight"])
+                time.sleep(0.5)  # be polite to the free API
+        time.sleep(1)
+# -----------------------------------------------------------------------------
+
+
 def poll():
     global latest
     warned = False
@@ -180,9 +211,12 @@ def poll():
 def plane_format(p, home):
     """One plane, in the same beginner-friendly shape for every endpoint."""
     x, y = to_xy(p["lat"], p["lon"], home["lat"], home["lon"]) if home else (0.5, 0.5)
+    route = routes.get(p["flight"]) or {}
     return {
         "id": p["hex"],
         "callsign": p["flight"] or p["hex"] or "?",
+        "from": route.get("from"),     # departure airport IATA code, e.g. "LHR" (null if unknown)
+        "to": route.get("to"),         # arrival airport IATA code, e.g. "JFK"
         "lat": p["lat"],
         "lon": p["lon"],
         "altitude": p["alt"] or 0,     # feet
@@ -253,6 +287,7 @@ def my_ip():
 
 if __name__ == "__main__":
     threading.Thread(target=poll, daemon=True).start()
+    threading.Thread(target=poll_routes, daemon=True).start()
     servers = [ThreadingHTTPServer(("0.0.0.0", port), Handler) for port in PORTS]
     for server in servers[1:]:
         threading.Thread(target=server.serve_forever, daemon=True).start()
