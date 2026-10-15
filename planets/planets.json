@@ -1,0 +1,10 @@
+[
+  { "name": "Mercury", "distance": 57.9,   "size": 4879 },
+  { "name": "Venus",   "distance": 108.2,  "size": 12104 },
+  { "name": "Earth",   "distance": 149.6,  "size": 12756 },
+  { "name": "Mars",    "distance": 227.9,  "size": 6792 },
+  { "name": "Jupiter", "distance": 778.6,  "size": 142984 },
+  { "name": "Saturn",  "distance": 1433.5, "size": 120536 },
+  { "name": "Uranus",  "distance": 2872.5, "size": 51118 },
+  { "name": "Neptune", "distance": 4495.1, "size": 49528 }
+]

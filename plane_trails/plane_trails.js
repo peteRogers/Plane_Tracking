@@ -71,14 +71,10 @@ function draw() {
     stroke(0, 200, 255, 150);
     strokeWeight(2);
     beginShape();
-    if (t.trail.length > 0) {
-      curveVertex(screenX(t.trail[0].x), screenY(t.trail[0].y)); // first point twice
-    }
     for (let p of t.trail) {
-      curveVertex(screenX(p.x), screenY(p.y));
+      splineVertex(screenX(p.x), screenY(p.y));
     }
-    curveVertex(screenX(t.x), screenY(t.y));
-    curveVertex(screenX(t.x), screenY(t.y)); // last point twice so the curve reaches the end
+    splineVertex(screenX(t.x), screenY(t.y)); // the curve goes all the way to the plane
     endShape();
   }
 

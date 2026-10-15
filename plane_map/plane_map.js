@@ -83,8 +83,11 @@ function drawMap() {
     if (ty < 0 || ty >= count) continue;
     for (let tx = floor(left); tx <= floor(right); tx++) {
       let url = TILE_URL.replace("{z}", z).replace("{x}", (tx % count + count) % count).replace("{y}", ty);
-      if (!tiles[url]) tiles[url] = loadImage(url);
-      image(tiles[url], (tx - left) * size, (ty - top) * size, size + 1, size + 1);
+      if (!(url in tiles)) {
+        tiles[url] = null; // loading - only ask for each tile once
+        loadImage(url, (img) => tiles[url] = img);
+      }
+      if (tiles[url]) image(tiles[url], (tx - left) * size, (ty - top) * size, size + 1, size + 1);
     }
   }
 }
@@ -128,14 +131,10 @@ function draw() {
     stroke(0, 200, 255, 150);
     strokeWeight(2);
     beginShape();
-    if (t.trail.length > 0) {
-      curveVertex(screenX(t.trail[0].lon), screenY(t.trail[0].lat)); // first point twice
-    }
     for (let p of t.trail) {
-      curveVertex(screenX(p.lon), screenY(p.lat));
+      splineVertex(screenX(p.lon), screenY(p.lat));
     }
-    curveVertex(screenX(t.lon), screenY(t.lat));
-    curveVertex(screenX(t.lon), screenY(t.lat)); // last point twice so the curve reaches the end
+    splineVertex(screenX(t.lon), screenY(t.lat)); // the curve goes all the way to the plane
     endShape();
   }
 

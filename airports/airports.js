@@ -3,12 +3,10 @@
 
 let airports = [];
 
-function preload() {
-  // p5 turns a top-level JSON array into an object, so grab its values
-  loadJSON("../all_public_airports.json", (d) => airports = Object.values(d));
-}
+async function setup() {
+  // wait for the airports to load before carrying on
+  airports = await loadJSON("../all_public_airports.json");
 
-function setup() {
   // canvas is twice as wide as it is tall (360° of lon by 180° of lat)
   let h = min(windowHeight, windowWidth / 2);
   createCanvas(h * 2, h);
