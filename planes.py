@@ -231,7 +231,7 @@ def plane_format(p, home):
 def class_format(data):
     """The /planes.json format used in the p5.js classes."""
     planes = [plane_format(p, data["home"]) for p in data["planes"]]
-    return {"planes": planes, "count": len(planes), "time": data["time"], "demo": DEMO}
+    return {"home": data["home"], "planes": planes, "count": len(planes), "time": data["time"], "demo": DEMO}
 
 
 class Handler(SimpleHTTPRequestHandler):
