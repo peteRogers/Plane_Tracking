@@ -1,7 +1,7 @@
 //
 //  ticController.js
 //  p5 / browser port of Grace/TicMotorControl/TicController.swift
-//  Shared by p5TicControl and p5FaceTicControl; load it from each page with
+//  Shared by p5TicControl and Tic_plane_rotation; load it from each page with
 //  <script src="../shared/ticController.js">.
 //
 //  Comes with a ready-made UI, in one of two modes:
