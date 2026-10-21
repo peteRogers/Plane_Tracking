@@ -24,6 +24,10 @@ let bearing = 0;          // where we're pointing (glides towards the target)
 let motorAngle = 0;       // same, but never wraps: 350 -> 370 rather than 350 -> 10
 let smoothing = 0.05;     // how much to glide each frame: smaller = smoother but slower
 
+// testing: tick the box and the slider sets the bearing instead of the planes
+let testBox;
+let testSlider;
+
 function setup() {
   createCanvas(640, 480);
   angleMode(DEGREES);  // so sin, cos and atan2 all use degrees
@@ -31,6 +35,10 @@ function setup() {
 
   getPlanes();
   setInterval(getPlanes, 1000); // ask for new data every second
+
+  let testBar = createDiv().style("padding", "8px");
+  testBox = createCheckbox(" test with slider (ignore planes)", false).parent(testBar);
+  testSlider = createSlider(0, 360, 0, 1).parent(testBar).style("width", "620px");
 
   tic = new TicController({ product: "T500", mode: "position" });
   tic.createControls();
@@ -71,7 +79,10 @@ function draw() {
   noStroke();
   textSize(16);
 
-  if (!plane) {
+  let testing = testBox.checked();
+  if (testing) {
+    targetBearing = testSlider.value() % 360;
+  } else if (!plane) {
     text("Waiting for " + server, 20, 40);
     return;
   }
@@ -105,6 +116,7 @@ function draw() {
   noStroke();
   fill(255);
   textAlign(LEFT, TOP);
-  text(plane.callsign + "   " + nf(plane.distance, 0, 1) + " km away", 20, 20);
+  if (testing) text("TEST: slider at " + testSlider.value() + "°", 20, 20);
+  else text(plane.callsign + "   " + nf(plane.distance, 0, 1) + " km away", 20, 20);
   text("bearing " + round(bearing) + "°   motor turn " + round(turn) + "°", 20, 45);
 }
