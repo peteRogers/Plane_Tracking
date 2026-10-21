@@ -3,15 +3,15 @@
 // heading (degrees), distance (km from home), lat, lon, and x, y (0 to 1, home is in the middle)
 //
 // Every plane gets its own "voice": a rumble of noise plus an engine hum.
-//   distance + altitude -> how loud it is (further away = quieter)
-//   altitude            -> how muffled it is (higher = more muffled)
+//   distance + altitude -> how loud it is (silent beyond hearingKm, loud only when close)
+//   distance + altitude -> how muffled it is (further / higher = more muffled)
 //   speed               -> the pitch of the engine hum
 //   x position          -> left / right speaker
 
-// Change this to your teacher's address:
-//let server = "http://172.20.10.2:8000/planes.json";
-let server = "http://localhost:8000/closest.json";  // planes.py running on this computer
-//let server = "http://192.168.1.217:8000/closest.json";  // add ?n=3 for a different number
+// Change this to the server address:
+//let server = "http://192.168.50.56:8081/planes.json";
+//let server = "http://localhost:8000/closest.json";  // planes.py running on this computer
+let server = "http://192.168.50.56:8081/closest.json";  // add ?n=3 for a different number
 let planes = [];
 let zoomSlider;
 
@@ -26,7 +26,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
 
   // zoom slider at the bottom: min, max, start value, step
-  zoomSlider = createSlider(0.25, 5, 1, 0.05);
+  zoomSlider = createSlider(0.25, 20, 1, 0.05);
   placeSlider();
 
   getPlanes();
@@ -190,12 +190,18 @@ function updateSounds() {
     let heightKm = plane.altitude * 0.0003048;
     let slantKm = sqrt(sq(plane.distance) + sq(heightKm));
 
-    // further away = quieter
-    v.loudness = 0.5 / (1 + slantKm * 0.4);
+    // closeness: 1 = right overhead, 0 = too far away to hear
+    let hearingKm = 5;   // planes further than this are silent - make it smaller to need them even closer
+    let closeness = constrain(1 - slantKm / hearingKm, 0, 1);
+
+    // further away = quieter. Cubing it makes the volume drop off fast,
+    // so a plane only gets really loud when it's close
+    v.loudness = 0.9 * pow(closeness, 3);
     v.volume.gain.setTargetAtTime(v.loudness, now, glide);
 
-    // higher = more muffled (lower filter cutoff)
-    let cutoff = map(plane.altitude, 0, 40000, 2500, 250, true);
+    // further away or higher = more muffled (lower filter cutoff)
+    let cutoff = map(pow(closeness, 2), 0, 1, 100, 6000);
+    cutoff *= map(plane.altitude, 0, 40000, 1, 0.3, true);
     v.filter.frequency.setTargetAtTime(cutoff, now, glide);
 
     // faster = higher engine hum

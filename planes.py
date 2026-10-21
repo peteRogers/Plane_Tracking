@@ -9,6 +9,8 @@ Run on the Mac (no extra installs needed):
   http://<mac-ip>:8081/planes          every plane, nearest first
   http://<mac-ip>:8081/closest         the 5 closest planes
   http://<mac-ip>:8081/closest?n=3     any number you like
+  http://<mac-ip>:8081/closest?zoom=20 zoomed in: x, y cover 1/20th of the area
+                                       (add &zoom= to any of these, e.g. ?n=3&zoom=5)
   http://<mac-ip>:8000/planes.json     beginner-friendly format for p5.js classes
                                        (includes x, y between 0 and 1 for drawing)
   http://<mac-ip>:8000/plane_starter/  any file in this folder is served too
@@ -81,12 +83,15 @@ def distance_km(lat1, lon1, lat2, lon2):
     return 2 * r * math.asin(math.sqrt(a))
 
 
-def to_xy(lat, lon, home_lat, home_lon):
-    """Turn lat/lon into x, y between 0 and 1 (home is 0.5, 0.5)."""
+def to_xy(lat, lon, home_lat, home_lon, zoom=1):
+    """Turn lat/lon into x, y between 0 and 1 (home is 0.5, 0.5).
+    zoom 2 = the canvas edge is half as far away, so planes spread out twice as much.
+    Planes outside the zoomed area get x or y below 0 or above 1 (off the canvas)."""
+    range_km = RANGE_KM / zoom
     dy_km = (lat - home_lat) * 111.0
     dx_km = (lon - home_lon) * 111.0 * math.cos(math.radians(home_lat))
-    x = 0.5 + dx_km / (2 * RANGE_KM)
-    y = 0.5 - dy_km / (2 * RANGE_KM)
+    x = 0.5 + dx_km / (2 * range_km)
+    y = 0.5 - dy_km / (2 * range_km)
     return round(x, 4), round(y, 4)
 
 
@@ -208,9 +213,9 @@ def poll():
         time.sleep(1)
 
 
-def plane_format(p, home):
+def plane_format(p, home, zoom=1):
     """One plane, in the same beginner-friendly shape for every endpoint."""
-    x, y = to_xy(p["lat"], p["lon"], home["lat"], home["lon"]) if home else (0.5, 0.5)
+    x, y = to_xy(p["lat"], p["lon"], home["lat"], home["lon"], zoom) if home else (0.5, 0.5)
     route = routes.get(p["flight"]) or {}
     return {
         "id": p["hex"],
@@ -228,9 +233,9 @@ def plane_format(p, home):
     }
 
 
-def class_format(data):
+def class_format(data, zoom=1):
     """The /planes.json format used in the p5.js classes."""
-    planes = [plane_format(p, data["home"]) for p in data["planes"]]
+    planes = [plane_format(p, data["home"], zoom) for p in data["planes"]]
     return {"home": data["home"], "planes": planes, "count": len(planes), "time": data["time"], "demo": DEMO}
 
 
@@ -244,17 +249,24 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         url = urlparse(self.path)
         data = latest
+        query = parse_qs(url.query)
+        try:
+            zoom = float(query.get("zoom", [1])[0])
+        except ValueError:
+            zoom = 1
+        if zoom <= 0:
+            zoom = 1
         if url.path == "/planes.json":
-            self.reply(200, class_format(data))
+            self.reply(200, class_format(data, zoom))
         elif url.path in ("/planes", "/closest", "/closest.json"):
             if data["error"]:
                 self.reply(502, {"error": data["error"]})
                 return
             result = {"home": data["home"],
-                      "aircraft": [plane_format(p, data["home"]) for p in data["planes"]]}
+                      "aircraft": [plane_format(p, data["home"], zoom) for p in data["planes"]]}
             if url.path != "/planes":
                 try:
-                    n = int(parse_qs(url.query).get("n", [DEFAULT_COUNT])[0])
+                    n = int(query.get("n", [DEFAULT_COUNT])[0])
                 except ValueError:
                     n = DEFAULT_COUNT
                 result["aircraft"] = result["aircraft"][:max(1, n)]

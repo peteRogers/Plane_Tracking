@@ -1,9 +1,9 @@
 // Plane beeps in p5.js
 // Beeps for the closest plane: the closer it is, the closer together the beeps
 
-// Change this to your teacher's address:
-//let server = "http://192.168.1.217:8000/closest.json?n=1";  // just the closest plane
-let server = "http://localhost:8000/closest.json?n=1";  // planes.py running on this computer
+// Change this to the server address:
+let server = "http://192.168.50.56:8081/closest.json?n=1";  // just the closest plane
+//let server = "http://localhost:8000/closest.json?n=1";  // planes.py running on this computer
 let plane;          // the closest plane
 let audio;          // makes the sound
 let lastBeep = 0;   // when we last beeped (in milliseconds)

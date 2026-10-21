@@ -2,9 +2,9 @@
 // Each plane has: callsign, altitude (feet), speed (knots),
 // heading (degrees), lat, lon, and x, y (0 to 1, home is in the middle)
 
-// Change this to your teacher's address:
-//let server = "http://172.20.10.2:8000/planes.json";
-let server = "http://192.168.1.217:8000/closest.json";  // add ?n=3 for a different number
+// Change this to the server address:
+//let server = "http://192.168.50.56:8081/planes.json";
+let server = "http://192.168.50.56:8081/closest.json";  // add ?n=3 for a different number
 let planes = [];
 
 

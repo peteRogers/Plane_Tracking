@@ -12,8 +12,8 @@
 // ---- change these ----
 const char* WIFI_NAME = "your-wifi-name";
 const char* WIFI_PASSWORD = "your-wifi-password";  // don't commit your real password!
-const char* SERVER = "192.168.1.217";  // your teacher's address (the computer running planes.py)
-const int PORT = 8000;
+const char* SERVER = "192.168.50.56";  // the server address (the computer running planes.py)
+const int PORT = 8081;
 // ----------------------
 
 WiFiClient client;

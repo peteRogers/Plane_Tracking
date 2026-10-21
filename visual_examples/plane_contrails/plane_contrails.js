@@ -8,17 +8,18 @@
 // p5.strands lets us write a shader (a tiny program that runs on the
 // graphics card, once for every pixel) in JavaScript
 
-// Change this to your teacher's address:
-//let server = "http://172.20.10.2:8000/planes.json";
-let server = "http://192.168.1.217:8000/closest.json";  // add ?n=3 for a different number
+// Change this to the server address:
+//let server = "http://192.168.50.56:8081/planes.json";
+let server = "http://192.168.50.56:8081/planes.json";  // add ?n=3 for a different number
 let planes = [];
 let tracks = {};   // plane id -> { x, y, trail } where we're drawing it
 let zoomSlider;
 let cloudShader;
 
-let SMOOTH = 0.05;        // how fast a plane glides to its new position (0 to 1)
-let TRAIL_EVERY = 5;      // add a puff to the trail every 5 frames
-let TRAIL_LIFE = 60000;   // how long a puff lasts, in milliseconds (60 seconds)
+let RANGE_KM = 150;       // must match RANGE_KM in planes.py (home to the edge of the canvas)
+let CORRECT = 0.02;       // how strongly a plane is pulled towards its real position each frame (0 to 1)
+let TRAIL_EVERY = 250;    // add a puff to the trail every 250 milliseconds
+let TRAIL_LIFE = 180000;  // how long a puff lasts, in milliseconds (3 minutes)
 let ENGINE_GAP = 4;       // how far apart the two contrails start, in pixels
 let START_SIZE = 2;       // how wide each contrail is when it's new, in pixels
 let END_SIZE = 7;         // how wide it has spread by the time it fades away
@@ -28,7 +29,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
 
   // zoom slider at the bottom: min, max, start value, step
-  zoomSlider = createSlider(0.25, 5, 1, 0.05);
+  zoomSlider = createSlider(0.25, 20, 1, 0.05);
   placeSlider();
 
   cloudShader = buildFilterShader(clouds);
@@ -42,7 +43,7 @@ function getPlanes() {
 }
 
 function gotPlanes(data) {
-  planes = data.aircraft; // /planes.json calls this list data.planes
+  planes = data.aircraft || data.planes; // /closest.json calls the list "aircraft", /planes.json calls it "planes"
 }
 
 // turn a 0-to-1 position into a screen position, zoomed around the middle
@@ -94,17 +95,25 @@ function draw() {
   for (let plane of planes) {
     // a new plane starts where it is, with an empty trail
     if (!tracks[plane.id]) {
-      tracks[plane.id] = { x: plane.x, y: plane.y, trail: [] };
+      tracks[plane.id] = { x: plane.x, y: plane.y, trail: [], lastPuff: 0 };
     }
     let t = tracks[plane.id];
 
-    // glide a little way towards the latest position each frame
-    t.x = lerp(t.x, plane.x, SMOOTH);
-    t.y = lerp(t.y, plane.y, SMOOTH);
+    // fly the plane forward at its own speed, in the direction it's heading.
+    // knots -> km per millisecond -> 0-to-1 units (the canvas is 2 * RANGE_KM across)
+    let step = (plane.speed || 0) * 1.852 / 3600000 / (2 * RANGE_KM) * deltaTime;
+    t.x += sin(radians(plane.heading || 0)) * step;  // heading 0 = north = up the screen
+    t.y -= cos(radians(plane.heading || 0)) * step;
 
-    if (frameCount % TRAIL_EVERY == 0) {
+    // and pull it gently towards where the server says it really is,
+    // so small mistakes don't build up
+    t.x = lerp(t.x, plane.x, CORRECT);
+    t.y = lerp(t.y, plane.y, CORRECT);
+
+    if (millis() - t.lastPuff > TRAIL_EVERY) {
       // remember which way the plane was flying, so we know where its engines are
       t.trail.push({ x: t.x, y: t.y, heading: plane.heading || 0, born: millis() });
+      t.lastPuff = millis();
     }
   }
 
@@ -140,7 +149,7 @@ function draw() {
 
   // home (the antenna) in the middle
   fill(255, 80, 80);
-  circle(width / 2, height / 2, 10);
+ // circle(width / 2, height / 2, 10);
 
   // planes on top of the contrails
   for (let plane of planes) {
@@ -149,14 +158,15 @@ function draw() {
     let y = screenY(t.y);
 
     // higher planes = bigger circles
-    let size = map(plane.altitude, 0, 40000, 5, 40);
+    let size = map(plane.altitude, 0, 40000, 20, 10);
 
-    fill(40, 40, 60);
-    circle(x, y, size);
 
-    fill(20, 30, 60);
-    textSize(12);
-    text(plane.callsign, x + size / 2 + 4, y);
+    fill(255, 100)
+    circle(x, y, 5);
+
+    // fill(20, 30, 60);
+    // textSize(12);
+    // text(plane.callsign, x + size / 2 + 4, y);
   }
 
   fill(20, 30, 60);

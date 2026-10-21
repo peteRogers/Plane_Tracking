@@ -10,9 +10,9 @@
 // Web Serial only works in Chrome / Edge, and the page must be opened from
 // http://localhost (e.g. Go Live in VS Code), not by double-clicking the file
 
-// Change this to your teacher's address:
-//let server = "http://192.168.1.217:8000/closest.json?n=1";  // just the closest plane
-let server = "http://localhost:8000/closest.json?n=1";  // planes.py running on this computer
+// Change this to the server address:
+let server = "http://192.168.50.56:8081/closest.json?n=1";  // just the closest plane
+//let server = "http://localhost:8000/closest.json?n=1";  // planes.py running on this computer
 
 // which compass direction the gimbal faces when the pan servo is at 90
 // (0 = north, 90 = east...) - point your gimbal north, or change this to match

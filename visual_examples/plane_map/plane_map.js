@@ -2,9 +2,9 @@
 // Each plane has: callsign, altitude (feet), speed (knots),
 // heading (degrees), lat, lon
 
-// Change this to your teacher's address:
-//let server = "http://172.20.10.2:8000/planes.json";
-let server = "http://10.100.13.136:8081/closest.json";  // add ?n=3 for a different number
+// Change this to the server address:
+//let server = "http://192.168.50.56:8081/planes.json";
+let server = "http://192.168.50.56:8081/closest.json";  // add ?n=3 for a different number
 let planes = [];
 let home;          // { lat, lon } of the antenna, sent by the server
 let tracks = {};   // plane id -> { lat, lon, trail } where we're drawing it
@@ -22,7 +22,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
 
   // zoom slider at the bottom: min, max, start value, step
-  zoomSlider = createSlider(0.25, 5, 1, 0.05);
+  zoomSlider = createSlider(0.25, 20, 1, 0.05);
   placeSlider();
 
   getPlanes();
