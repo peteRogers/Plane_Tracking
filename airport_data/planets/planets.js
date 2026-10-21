@@ -3,6 +3,8 @@
 //   name     - what it's called
 //   distance - how far from the Sun (millions of km)
 //   size     - how wide it is (km)
+//   color    - what colour to draw it (a hex code like "#3d7be0")
+//   moons    - how many moons it has
 
 let planets = [];
 
@@ -11,37 +13,41 @@ async function setup() {
 
   // wait for the file to load before carrying on
   planets = await loadJSON("planets.json");
-
+  fill(255)
   // try these in the console:
   console.log(planets);            // the whole list
 }
 
 function draw() {
-  background(10, 10, 30);
+  background(0);
 
-  // the Sun on the left, at the same scale as the planets (1,392,700 km wide!)
-  // it's so big that only the edge fits on the screen
-  // let sunSize = map(1392700, 0, 143000, 4, 80);
-  // fill(255, 200, 0);
-  // noStroke();
-  // circle(70 - sunSize / 2, height / 2, sunSize);
 
   for (let i = 0; i < planets.length; i++) {
     let planet = planets[i];
 
-    // spread the planets out evenly, in order from the Sun
-    let x = map(i, 0, planets.length - 1, 140, width - 80);
-    // bigger planet = bigger circle
-    let d = map(planet.size, 0, 143000, 4, 80);
+    // spread the planets out evenly
+    let x = spreadX(i, planets.length);
+  
+    text(planet.name, 20, (i+1) * 20)
+    noStroke(); // no outline, or the tiny dots just look black
 
-    fill(150, 200, 255);
-    circle(x, height / 2, d);
 
-    fill(255);
-    textAlign(CENTER);
-    text(planet.name, x, height / 2 + 60);
-    text(planet.distance + " million km", x, height / 2 + 80);
+
   }
+}
+
+
+
+
+///Helper Functions below
+
+// gives the x position for item number "position" out of "total" items
+// the screen (minus some padding on each side) is split into one slot per item,
+// and each item sits in the middle of its slot
+function spreadX(position, total) {
+  let padding = width * 0.05; // 5% of the screen width on each side
+  let slotWidth = (width - padding * 2) / total;
+  return padding + slotWidth * position + slotWidth / 2;
 }
 
 function windowResized() {

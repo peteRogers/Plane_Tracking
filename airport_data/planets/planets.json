@@ -1,10 +1,10 @@
 [
-  { "name": "Mercury", "distance": 57.9,   "size": 4879 },
-  { "name": "Venus",   "distance": 108.2,  "size": 12104 },
-  { "name": "Earth",   "distance": 149.6,  "size": 12756 },
-  { "name": "Mars",    "distance": 227.9,  "size": 6792 },
-  { "name": "Jupiter", "distance": 778.6,  "size": 142984 },
-  { "name": "Saturn",  "distance": 1433.5, "size": 120536 },
-  { "name": "Uranus",  "distance": 2872.5, "size": 51118 },
-  { "name": "Neptune", "distance": 4495.1, "size": 49528 }
+  { "name": "Mercury", "distance": 57.9,   "size": 4879,   "color": "#9e9e9e", "moons": 0 },
+  { "name": "Venus",   "distance": 108.2,  "size": 12104,  "color": "#e6c87a", "moons": 0 },
+  { "name": "Earth",   "distance": 149.6,  "size": 12756,  "color": "#3d7be0", "moons": 1 },
+  { "name": "Mars",    "distance": 227.9,  "size": 6792,   "color": "#c1440e", "moons": 2 },
+  { "name": "Jupiter", "distance": 778.6,  "size": 142984, "color": "#d8a46b", "moons": 95 },
+  { "name": "Saturn",  "distance": 1433.5, "size": 120536, "color": "#e3d08f", "moons": 274 },
+  { "name": "Uranus",  "distance": 2872.5, "size": 51118,  "color": "#9fe3e8", "moons": 28 },
+  { "name": "Neptune", "distance": 4495.1, "size": 49528,  "color": "#4166f5", "moons": 16 }
 ]
