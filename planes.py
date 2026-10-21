@@ -29,10 +29,10 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
 # ---- change these ----
-SOURCE = "http://localhost:8080/data/aircraft.json"    # feed from the FlightAware stick
-RECEIVER = "http://localhost:8080/data/receiver.json"  # used to find your location
-HOME_LAT = None   # e.g. 51.5074 — set these if receiver.json has no location
-HOME_LON = None   # e.g. -0.1278
+SOURCE = "http://localhost:8080/data.json"             # antirez dump1090
+RECEIVER = "http://localhost:8080/data/receiver.json"  # not used once HOME_LAT/LON are set
+HOME_LAT = 51.473017   # your antenna's latitude
+HOME_LON = -0.037393   # your antenna's longitude
 PORTS = (8081, 8000)   # 8081 for /planes and /closest, 8000 for the classes' /planes.json
 DEFAULT_COUNT = 5
 MAX_POSITION_AGE = 60  # seconds; ignore planes whose position is older than this
