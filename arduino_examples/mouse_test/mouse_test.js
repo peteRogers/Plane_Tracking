@@ -1,7 +1,7 @@
 // Test the gimbal with the mouse - no plane server needed
 // Move the mouse left/right to pan, up/down to tilt
 // Sends "pan,tilt" (both 0 to 180) to the Arduino, the same as plane_gimbal.js,
-// so it works with plane_gimbal_arduino.ino as it is
+// so it works with gimbal_arduino.ino as it is
 //
 // Web Serial only works in Chrome / Edge, and the page must be opened from
 // http://localhost (e.g. Go Live in VS Code), not by double-clicking the file

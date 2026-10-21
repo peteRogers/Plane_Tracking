@@ -33,10 +33,12 @@ void setup() {
   delay(10);
   moveServo(PAN_CHANNEL, 90);
   moveServo(TILT_CHANNEL, 0);
+  
 }
 
 void loop() {
   // read "pan,tilt" whenever a new line arrives
+
   if (Serial.available() > 0) {
     int pan = Serial.parseInt();   // reads the number before the comma
     int tilt = Serial.parseInt();  // reads the number after the comma
