@@ -40,8 +40,8 @@ function draw() {
 
   if (millis() - lastBeep > wait) {
     // further plane = deeper, quieter beep
-    // 0 km -> 500 Hz, 50 km -> 250 Hz
-    let pitch = map(plane.distance, 0, 50, 500, 250, true);
+    // 0 km -> 400 Hz, 50 km -> 100 Hz
+    let pitch = map(plane.distance, 0, 20, 400, 100, true);
     let loudness = map(plane.distance, 0, 50, 0.2, 0.12, true);
     beep(pitch, loudness);
     lastBeep = millis();
@@ -55,7 +55,7 @@ function mousePressed() {
   if (!audio) audio = new AudioContext();
 }
 
-// one soft beep
+// one short chirp
 function beep(pitch, loudness) {
   let now = audio.currentTime;
 
@@ -63,16 +63,16 @@ function beep(pitch, loudness) {
   tone.type = "sine";          // sine = the smoothest, gentlest sound
   tone.frequency.value = pitch;
 
-  // fade in and out gently, so it's a soft "boop" not a sharp click
+  // quick fade in and out, so it's a short "chirp" not a sharp click
   let volume = audio.createGain();
   volume.gain.setValueAtTime(0, now);
-  volume.gain.linearRampToValueAtTime(loudness, now + 0.05);
-  volume.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+  volume.gain.linearRampToValueAtTime(loudness, now + 0.01);
+  volume.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
   tone.connect(volume);
   volume.connect(audio.destination);
   tone.start(now);
-  tone.stop(now + 0.8);
+  tone.stop(now + 0.15);
 }
 
 function windowResized() {

@@ -4,7 +4,7 @@
 
 // Change this to the server address:
 //let server = "http://192.168.50.56:8081/planes.json";
-let server = "http://192.168.50.56:8081/closest.json";  // add ?n=3 for a different number
+let server = "http://192.168.50.56:8081/planes?zoom=10";  // add ?n=3 for a different number
 let planes = [];
 let trails = {};   // plane id -> a list of places it has been
 
