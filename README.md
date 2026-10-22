@@ -80,10 +80,9 @@ python3 planes.py
 ```
 It prints the addresses to give students, for example:
 ```
-All planes:      http://192.168.1.50:8081/planes
-Closest 5:       http://192.168.1.50:8081/closest
-Students use:    http://192.168.1.50:8000/planes.json
-Starter sketch:  http://192.168.1.50:8000/plane_starter/
+All planes:      http://192.168.50.56:8081/planes
+Closest 5:       http://192.168.50.56:8081/closest
+
 ```
 Every address works on both ports, 8081 and 8000.
 If macOS asks whether Python may accept incoming connections, click **Allow**.
