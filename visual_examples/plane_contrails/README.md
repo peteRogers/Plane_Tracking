@@ -32,18 +32,32 @@ The settings are near the top of `plane_contrails.js`:
 ```js
 let ENGINE_GAP = 4;       // how far apart the two contrails start, in pixels
 let START_SIZE = 3;       // how wide each contrail is when it's new, in pixels
-let END_SIZE = 10;        // how wide it has spread by the time it fades away
+let END_SIZE = 40;        // how wide it has spread by the time it fades away
 ```
 
 - **`START_SIZE`** is how thick the trail is just behind the plane.
-- **`END_SIZE`** is how wide it has spread just before it fades away. The sketch blends from one to the other over the trail's life.
-- To make the trails bigger, raise both numbers. To make them thinner, lower both. They look most natural when `END_SIZE` is about 3 to 4 times `START_SIZE`.
+- **`END_SIZE`** is how wide it has spread just before it fades away. The sketch blends from one to the other over the trail's life. Each part of the trail spreads to somewhere between 70% and 130% of this, so the trail looks uneven.
+- To make the trails bigger, raise both numbers. To make them thinner, lower both.
 - **`ENGINE_GAP`** is the space between the two engine trails. If wider trails merge into one line, raise it (try `6`).
 
 Two more things change how big the trails look:
 
 - **`let r = 1.5;`** in `clouds()` is how much the trails are blurred. A bigger number makes them softer and fluffier, so they look wider.
 - **`TRAIL_LIFE`** is how long a trail lasts, in milliseconds. A bigger number makes the trails longer, and they spread more slowly.
+
+## Fading and wind
+
+```js
+let FADE = 3;             // how quickly the contrails fade (1 = evenly, bigger = sooner)
+let WIND = 30;            // how far the wind blows a contrail before it fades away, in pixels
+let WIND_DIRECTION = 70;  // which way the wind blows, in degrees (0 = up, 90 = right)
+let GUSTS = 15;           // how unevenly it gets blown, in pixels (0 = all blown the same)
+```
+
+- **`FADE`**: the trail fades more quickly with a bigger number. Try `2` for longer trails or `4` for shorter ones.
+- **`WIND`**: a puff starts exactly where the plane was, then is blown further away as it gets older. Use `0` for no wind.
+- **`WIND_DIRECTION`** works like a compass, the same as a plane's heading.
+- **`GUSTS`**: noise pushes each part of the trail a little differently, and the push changes slowly over time, so the trail bends and wobbles instead of sliding along in one piece. Keep it about half of `WIND` or less to keep the effect subtle.
 
 ## Other things to try
 

@@ -22,7 +22,11 @@ let TRAIL_EVERY = 250;    // add a puff to the trail every 250 milliseconds
 let TRAIL_LIFE = 180000;  // how long a puff lasts, in milliseconds (3 minutes)
 let ENGINE_GAP = 4;       // how far apart the two contrails start, in pixels
 let START_SIZE = 3;       // how wide each contrail is when it's new, in pixels
-let END_SIZE = 30;        // how wide it has spread by the time it fades away
+let END_SIZE = 40;        // how wide it has spread by the time it fades away
+let FADE = 3;             // how quickly the contrails fade (1 = evenly, bigger = sooner)
+let WIND = 30;            // how far the wind blows a contrail before it fades away, in pixels
+let WIND_DIRECTION = 70;  // which way the wind blows, in degrees (0 = up, 90 = right)
+let GUSTS = 15;           // how unevenly it gets blown, in pixels (0 = all blown the same)
 let SKY = [135, 206, 235]; // sky blue
 
 function setup() {
@@ -127,7 +131,10 @@ function draw() {
 
     for (let p of t.trail) {
       let age = (millis() - p.born) / TRAIL_LIFE; // 0 = brand new, 1 = gone
-      let size = lerp(START_SIZE, END_SIZE, age);  // very slowly gets wider
+      // noise gives each part of the trail its own amount, so neighbouring puffs are
+      // similar but the trail as a whole is uneven (p.born / 4000 = about every 4 seconds)
+      let lumpy = noise(p.born / 4000);
+      let size = lerp(START_SIZE, END_SIZE * (0.7 + lumpy * 0.6), age);  // very slowly gets wider
       let gap = ENGINE_GAP + size / 2;             // and the two trails drift apart a little
 
       // the engines are either side of the plane, at right angles to the way it's flying
@@ -135,10 +142,17 @@ function draw() {
       let sideX = cos(radians(p.heading)) * gap / 2;
       let sideY = sin(radians(p.heading)) * gap / 2;
 
+      // the wind blows older puffs further from where they were made,
+      // and gusts push some parts a little more than others
+      let gustX = (noise(p.born / 4000, 0, millis() / 30000) - 0.5) * 2 * GUSTS;
+      let gustY = (noise(p.born / 4000, 100, millis() / 30000) - 0.5) * 2 * GUSTS;
+      let blowX = (sin(radians(WIND_DIRECTION)) * WIND + gustX) * age;
+      let blowY = (-cos(radians(WIND_DIRECTION)) * WIND + gustY) * age;
+
       let fade = 1 - age;
-      fill(255, 255, 255, 230 * fade * fade);  // fades slowly at the end
-      let x = screenX(p.x);
-      let y = screenY(p.y);
+      fill(255, 255, 255, 230 * pow(fade, FADE));  // fades slowly at the end
+      let x = screenX(p.x) + blowX;
+      let y = screenY(p.y) + blowY;
       circle(x - sideX, y - sideY, size);  // left engine
       circle(x + sideX, y + sideY, size);  // right engine
     }
