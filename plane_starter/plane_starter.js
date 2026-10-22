@@ -11,6 +11,7 @@ let planes = [];
 function setup() {
   createCanvas(windowWidth, windowHeight);
   setInterval(getPlanes, 1000); // ask for new data every second
+  background(0);
 }
 
 function getPlanes() {
@@ -20,6 +21,7 @@ function getPlanes() {
 function gotPlanes(data) {
   planes = data.aircraft; // /planes.json calls this list data.planes
   console.log(planes)
+
 }
 
 function draw() {
@@ -33,11 +35,12 @@ function draw() {
     let x = plane.x * width
     let y = plane.y * height
     fill(255, 255, 255, 180);
-    circle(x, y, 10);
-
+    //circle(x, y, 10);
+    stroke(255)
+    line(width/2, height/2, x, y)
     fill(255);
     textSize(12);
-    text(plane.callsign, x + 6, y);
+    //text(plane.callsign, x + 6, y);
   }
 }
 

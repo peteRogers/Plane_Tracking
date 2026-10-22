@@ -21,7 +21,17 @@ function draw() {
   for (let airport of airports) {
     let x = map(airport.lon, -180, 180, 0, width);
     let y = map(airport.lat, 90, -90, 0, height);
-    ellipse(x, y, 3, 3);
+    if(airport.size == "large"){
+      fill(255); 
+      text(airport.icao, x, y)
+    }
+     if(airport.size == "medium"){
+      fill(255, 0, 0)
+      circle(x, y, 2)
+    }
+    
+    
+    //ellipse(x, y, 3, 3);
   }
 
   fill(255);
