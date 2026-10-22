@@ -21,8 +21,8 @@ let CORRECT = 0.02;       // how strongly a plane is pulled towards its real pos
 let TRAIL_EVERY = 250;    // add a puff to the trail every 250 milliseconds
 let TRAIL_LIFE = 180000;  // how long a puff lasts, in milliseconds (3 minutes)
 let ENGINE_GAP = 4;       // how far apart the two contrails start, in pixels
-let START_SIZE = 2;       // how wide each contrail is when it's new, in pixels
-let END_SIZE = 7;         // how wide it has spread by the time it fades away
+let START_SIZE = 3;       // how wide each contrail is when it's new, in pixels
+let END_SIZE = 30;        // how wide it has spread by the time it fades away
 let SKY = [135, 206, 235]; // sky blue
 
 function setup() {
