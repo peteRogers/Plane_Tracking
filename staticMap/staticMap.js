@@ -8,8 +8,8 @@ let zoom = 5;  // same zoom for the planes and the map
 let server = "http://192.168.50.56:8081/closest?zoom=" + zoom;  // add &n=3 for a different number
 let planes = [];
 
-// Map tiles (dark map from CARTO, made from OpenStreetMap data)
-let tileServer = "https://a.basemaps.cartocdn.com/dark_all/";
+// dark grey map pictures from Esri (free, no key needed), same as plane_map
+let TILE_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}";
 let RANGE_KM = 150;  // must match RANGE_KM in planes.py
 let home = null;     // the antenna's lat/lon, sent by the server
 let tiles = [];      // loaded once, when we first hear where home is
@@ -40,7 +40,7 @@ function loadMap() {
   // pick a tile zoom level so each tile is roughly 256 pixels on screen
   let worldKm = 40075 * cos(radians(home.lat));
   let z = round(log(worldKm / (2 * rangeKm) * width / 256) / log(2));
-  z = constrain(z, 0, 18);
+  z = constrain(z, 0, 16); // the Esri dark grey map stops at 16
 
   // corners of the canvas in lat/lon
   let dLat = rangeKm / 111;
@@ -57,7 +57,8 @@ function loadMap() {
         lon1: tileToLon(tx, z), lat1: tileToLat(ty, z),         // top left corner
         lon2: tileToLon(tx + 1, z), lat2: tileToLat(ty + 1, z), // bottom right corner
       };
-      loadImage(tileServer + z + "/" + tx + "/" + ty + ".png", (img) => tile.img = img);
+      let url = TILE_URL.replace("{z}", z).replace("{x}", tx).replace("{y}", ty);
+      loadImage(url, (img) => tile.img = img);
       tiles.push(tile);
     }
   }
@@ -99,7 +100,7 @@ function drawMap() {
   fill(255, 120);
   textSize(10);
   textAlign(RIGHT, BOTTOM);
-  text("© OpenStreetMap contributors © CARTO", width - 4, height - 4);
+  text("Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors", width - 4, height - 4);
   textAlign(LEFT, BASELINE);
 }
 
